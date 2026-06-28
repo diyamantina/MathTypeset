@@ -16,10 +16,17 @@ backend (PDF, SVG, MathML) can emit.
 
 ## Build and test
 
+Install the git hooks once per clone, then build and test:
+
 ```sh
+git config core.hooksPath .githooks
 swift build
 swift test
 ```
+
+The hooks reject forbidden style tells (em dashes, AI attribution) in commit
+messages and staged content, and `pre-push` runs SwiftFormat `--lint`, SwiftLint
+`--strict`, and the build and tests.
 
 ## Style
 

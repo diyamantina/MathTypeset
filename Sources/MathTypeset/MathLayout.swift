@@ -241,11 +241,11 @@ public struct MathLayout {
     private func symbolText(display: String, linearized: String) -> String {
         switch symbolStyle {
         case .unicode:
-            return display
+            display
         case .asciiFallback:
-            return linearized
+            linearized
         case .unicodeWhereCovered:
-            return (symbolCoverage?(display) ?? false) ? display : linearized
+            (symbolCoverage?(display) ?? false) ? display : linearized
         }
     }
 
