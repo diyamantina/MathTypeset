@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-28
+
+### Added
+
+- LaTeX command coverage for constructs that previously fell back to raw source:
+  the sized-delimiter family `\bigl \bigr \Bigl \Bigr \biggl \biggr \Biggl \Biggr`
+  (only the symmetric `\big \Big \bigg \Bigg` were recognized before), the
+  `\text{...}` command for upright literal text, and `\le` / `\ge` as aliases of
+  `\leq` / `\geq`.
+
 ### Changed
 
 - License changed from MIT to AGPL-3.0. MathTypeset is now dual licensed:

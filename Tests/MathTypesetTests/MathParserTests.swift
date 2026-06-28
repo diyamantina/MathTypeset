@@ -32,6 +32,41 @@ struct MathParserTests {
         }
     }
 
+    @Test("Parses bigl/bigr and the rest of the sized-delimiter family")
+    func parsesBigLeftRightSizedDelimiters() throws {
+        let parser = MathParser()
+        #expect(try parser.parse(#"\bigl| x \bigr|"#).linearizedText == "| x |")
+        #expect(try parser.parse(#"\Bigl( y \Bigr)"#).linearizedText == "( y )")
+        #expect(try parser.parse(#"\biggl\{ z \biggr\}"#).linearizedText == "{ z }")
+        #expect(try parser.parse(#"\Biggl[ w \Biggr]"#).linearizedText == "[ w ]")
+    }
+
+    @Test("Parses text as literal upright text")
+    func parsesTextCommand() throws {
+        let parser = MathParser()
+        #expect(try parser.parse(#"\text{engine}"#).linearizedText == "engine")
+        #expect(try parser.parse(#"v_{\text{SwiftUI}}"#).linearizedText == "v_{SwiftUI}")
+        #expect(try parser.parse(#"\text{max error}"#).linearizedText == "max error")
+    }
+
+    @Test("Parses le/ge as aliases of leq/geq")
+    func parsesLeGeAliases() throws {
+        let parser = MathParser()
+        #expect(try parser.parse(#"a \le b"#).linearizedText == "a <= b")
+        #expect(try parser.parse(#"x \ge y"#).linearizedText == "x >= y")
+    }
+
+    @Test("Parses the full oracle assertion formula that previously failed to typeset")
+    func parsesOracleAssertionFormula() throws {
+        let tex = #"\max_{t}\; \bigl|\, v_{\text{engine}}(t) - v_{\text{SwiftUI}}(t) \,\bigr| \;\le\; 10^{-6}"#
+        let parsed = try MathParser().parse(tex)
+        #expect(parsed.linearizedText.contains("max"))
+        #expect(parsed.linearizedText.contains("engine"))
+        #expect(parsed.linearizedText.contains("SwiftUI"))
+        #expect(parsed.linearizedText.contains("<="))
+        #expect(parsed.linearizedText.contains("|"))
+    }
+
     @Test("Parses and linearizes the expanded symbol set")
     func parsesExpandedSymbolSet() throws {
         let parser = MathParser()

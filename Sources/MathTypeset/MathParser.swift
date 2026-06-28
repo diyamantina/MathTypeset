@@ -170,12 +170,16 @@ public struct MathParser {
                 return .symbol(display: name, linearized: name, isBigOperator: false)
             case "begin":
                 return try parseMatrixEnvironment()
-            case "big", "Big", "bigg", "Bigg":
+            case "big", "Big", "bigg", "Bigg",
+                 "bigl", "Bigl", "biggl", "Biggl",
+                 "bigr", "Bigr", "biggr", "Biggr":
                 return try parseScaledDelimiter(scale: Self.delimiterScales[command] ?? 1)
             case "quad":
                 return .space(em: 1)
             case "qquad":
                 return .space(em: 2)
+            case "text":
+                return try .text(parseRawTextGroup(for: command))
             case "right", "end", "newcommand":
                 throw ParseError.unsupportedControlWord(command)
             default:
@@ -416,6 +420,26 @@ public struct MathParser {
             return try parseSequence(until: "}")
         }
 
+        /// Reads the literal characters of a `\text{...}` group without parsing
+        /// them as math, so the content stays upright text rather than italic
+        /// variables. The closing brace is consumed.
+        private mutating func parseRawTextGroup(for command: String) throws -> String {
+            guard index < source.endIndex, source[index] == "{" else {
+                throw ParseError.missingRequiredGroup(command)
+            }
+            index = source.index(after: index)
+            var text = ""
+            while index < source.endIndex, source[index] != "}" {
+                text.append(source[index])
+                index = source.index(after: index)
+            }
+            guard index < source.endIndex else {
+                throw ParseError.unmatchedGroup
+            }
+            index = source.index(after: index)
+            return text
+        }
+
         private mutating func parseScriptBody(_ marker: Character) throws -> MathNode {
             guard index < source.endIndex else {
                 throw ParseError.missingScriptBody(marker)
@@ -437,10 +461,10 @@ public struct MathParser {
         }
 
         private static let delimiterScales: [String: Double] = [
-            "big": 1.2,
-            "Big": 1.8,
-            "bigg": 2.4,
-            "Bigg": 3.0,
+            "big": 1.2, "bigl": 1.2, "bigr": 1.2,
+            "Big": 1.8, "Bigl": 1.8, "Bigr": 1.8,
+            "bigg": 2.4, "biggl": 2.4, "biggr": 2.4,
+            "Bigg": 3.0, "Biggl": 3.0, "Biggr": 3.0,
         ]
 
         private static let matrixEnvironments: [String: (open: String, close: String, leftAlign: Bool)] = [
@@ -490,7 +514,9 @@ public struct MathParser {
             "Phi": ("Φ", "Phi", false),
             "Omega": ("Ω", "Omega", false),
             "leq": ("≤", "<=", false),
+            "le": ("≤", "<=", false),
             "geq": ("≥", ">=", false),
+            "ge": ("≥", ">=", false),
             "neq": ("≠", "!=", false),
             "times": ("×", "x", false),
             "cdot": ("⋅", "*", false),
