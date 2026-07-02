@@ -8,7 +8,7 @@ table. The result is a backend-neutral `MathBox` that any consumer can emit to
 PDF, SVG, or MathML.
 
 The engine is extracted from the
-[MarkdownPDF](https://github.com/mihaelamj/MarkdownPDF) renderer so it can be
+[MarkdownPDF](https://codeberg.org/MarkdownPdfHQ/MarkdownPDF) renderer so it can be
 shared with other projects without duplicating the layout and metrics work.
 
 - Pure Swift, only `Foundation`. No PDF, AppKit, CoreGraphics, UIKit, or C
@@ -20,7 +20,7 @@ shared with other projects without duplicating the layout and metrics work.
 ## Install
 
 ```swift
-.package(url: "https://github.com/mihaelamj/MathTypeset.git", from: "0.1.0"),
+.package(url: "https://codeberg.org/MarkdownPdfHQ/MathTypeset.git", from: "0.7.0"),
 ```
 
 ```swift
