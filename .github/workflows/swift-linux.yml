@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     container: swift:6.1
     steps:
-      - uses: actions/checkout@v4
+      # The swift image has git but no Node, so JavaScript actions like
+      # actions/checkout cannot run inside it; clone with git directly.
+      - name: Checkout
+        run: |
+          git init .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          git fetch --depth 1 origin "$GITHUB_SHA"
+          git checkout FETCH_HEAD
       - name: Build and test
         run: swift build && swift test
