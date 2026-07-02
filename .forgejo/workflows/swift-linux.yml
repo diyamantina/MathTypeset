@@ -12,6 +12,7 @@ permissions:
 jobs:
   swift-linux:
     name: Swift (Linux)
+    # Self-hosted runner (Claw): Codeberg provides no hosted Actions runners.
     runs-on: ubuntu-latest
     container: swift:6.1
     steps:

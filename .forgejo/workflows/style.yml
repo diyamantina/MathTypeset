@@ -12,6 +12,7 @@ permissions:
 jobs:
   style:
     name: Format and lint
+    # Self-hosted runner (Claw): Codeberg provides no hosted Actions runners.
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
