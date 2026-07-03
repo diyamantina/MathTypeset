@@ -1,0 +1,23 @@
+name: DocC
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docc:
+    name: DocC build
+    # Self-hosted runner (Claw): Codeberg provides no hosted Actions runners.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build documentation
+        run: |
+          swift package --allow-writing-to-directory ./docs-archive \
+            generate-documentation --target MathTypesetDocumentation
