@@ -1,5 +1,10 @@
 # MathTypeset
 
+[![Style and namespacing](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/style.yml/badge.svg)](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/style.yml)
+[![Swift macOS](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/swift-macos.yml/badge.svg)](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/swift-macos.yml)
+[![Swift Linux](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/swift-linux.yml/badge.svg)](https://codeberg.org/MarkdownPdfHQ/MathTypeset/actions/workflows/swift-linux.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+
 A small, dependency-free Swift package that typesets a TeX-math subset into a
 neutral, positioned layout. It parses `\frac`, `\sqrt`, scripts, accents,
 matrices, big operators, scaling and fixed delimiters, and an extended symbol
