@@ -8,8 +8,7 @@ on:
   workflow_dispatch:
 jobs:
   rules:
-    # Self-hosted runner (Claw): Codeberg provides no hosted Actions runners.
-    runs-on: quick
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Shared-rules freshness marker
