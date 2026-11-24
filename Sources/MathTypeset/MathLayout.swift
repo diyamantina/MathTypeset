@@ -35,6 +35,24 @@ public struct MathLayout {
     /// supplies it; the engine never inspects the font program itself.
     public var symbolCoverage: ((String) -> Bool)?
 
+    /// What the layout reports instead of guessing.
+    public enum LayoutError: Error, Equatable, Sendable {
+        /// A symbol node whose Unicode string has no atom class in the table (a symbol the parser does not read): the space around
+        /// it cannot be decided, so it is named and not guessed.
+        case unclassifiedSymbol(String)
+    }
+
+    /// True while the content of a script is laid out: the spaces that only the display and text styles have are not added.
+    /// (The full cascade of the four styles is slice 2.)
+    var isScriptStyle = false
+
+    /// A copy of this layout for the content of a script.
+    private func scripted() -> MathLayout {
+        var copy = self
+        copy.isScriptStyle = true
+        return copy
+    }
+
     public init(
         font: MathFontStyle,
         color: MathColor,
@@ -223,7 +241,21 @@ public struct MathLayout {
         var height = 0.0
         var depth = 0.0
 
-        for child in children {
+        // The classes of the atoms, after the two rules that turn a binary operator without two operands into an ordinary atom;
+        // nil for a child that is not an atom (a typed space, an explicit space): it has no space of its own by class.
+        let classes = try Self.cancelledClasses(of: children)
+        var previous: MathAtomClass?
+
+        for (child, atom) in zip(children, classes) {
+            if let atom {
+                if let previous, let mu = MathSpacing.mu(between: previous, and: atom, largeStyle: !isScriptStyle) {
+                    cursor += Double(mu) * size / 18
+                }
+                previous = atom
+            } else if case let .text(text) = child, text.allSatisfy(\.isWhitespace) {
+                // A typed space is ignored in math, as in TeX: the space between atoms comes from their classes.
+                continue
+            }
             let box = try layout(child, size: size, displayStyle: displayStyle)
             elements += box.elements.map { $0.offsetBy(x: cursor, y: 0) }
             cursor += box.width
@@ -232,6 +264,58 @@ public struct MathLayout {
         }
 
         return MathBox(width: cursor, height: height, depth: depth, elements: elements)
+    }
+
+    /// The class of each child, or nil for a child that is not an atom, after the cancellation of the binary operators.
+    private static func cancelledClasses(of children: [MathNode]) throws -> [MathAtomClass?] {
+        var classes: [MathAtomClass?] = try children.map(atomClass(of:))
+        var lastIndex: Int?
+        for index in classes.indices {
+            guard let current = classes[index] else {
+                continue
+            }
+            if let last = lastIndex, let before = classes[last] {
+                if current == .bin, [.bin, .op, .rel, .open, .punct].contains(before) {
+                    classes[index] = .ord
+                } else if before == .bin, [.rel, .close, .punct].contains(current) {
+                    classes[last] = .ord
+                }
+            } else if current == .bin {
+                classes[index] = .ord
+            }
+            lastIndex = index
+        }
+        if let last = lastIndex, classes[last] == .bin {
+            classes[last] = .ord
+        }
+        return classes
+    }
+
+    /// The class of one node: a character or a symbol by its table, a fraction inner, a scripted atom the class of its base, a
+    /// space no atom, anything else ordinary.
+    private static func atomClass(of node: MathNode) throws -> MathAtomClass? {
+        switch node {
+        case let .text(text):
+            if text.allSatisfy(\.isWhitespace) {
+                return nil
+            }
+            return text.count == 1 ? text.first.map(MathAtomClass.ofCharacter) : .ord
+        case let .symbol(display, _, isBigOperator):
+            guard let atom = MathAtomClass.ofSymbol(display: display, isBigOperator: isBigOperator) else {
+                throw LayoutError.unclassifiedSymbol(display)
+            }
+            return atom
+        case .fraction:
+            return .inner
+        case let .scripts(base, _, _):
+            return try atomClass(of: base) ?? .ord
+        case let .scaledDelimiter(symbol, _):
+            return MathAtomClass.ofDelimiter(symbol)
+        case .space:
+            return nil
+        default:
+            return .ord
+        }
     }
 
     /// Picks the drawable string for a symbol command according to
@@ -354,8 +438,8 @@ public struct MathLayout {
 
         let baseBox = try layout(base, size: size, displayStyle: displayStyle)
         let scriptSize = metrics.scriptSize(size: size)
-        let subscriptBox = try subscriptNode.map { try layout($0, size: scriptSize, displayStyle: false) }
-        let superscriptBox = try superscriptNode.map { try layout($0, size: scriptSize, displayStyle: false) }
+        let subscriptBox = try subscriptNode.map { try scripted().layout($0, size: scriptSize, displayStyle: false) }
+        let superscriptBox = try superscriptNode.map { try scripted().layout($0, size: scriptSize, displayStyle: false) }
         let scriptGap = metrics.spaceAfterScript(size: size)
         let scriptX = baseBox.width + scriptGap
         let superscriptY = metrics.superscriptShiftUp(size: size, baseBox: baseBox)

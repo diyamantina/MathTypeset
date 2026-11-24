@@ -12,18 +12,20 @@ import Testing
 struct MathSpacingOracleTests {
     typealias Class = MathSpacingReference.AtomClass
 
-    private func makeLayout() -> MathLayout {
-        MathLayout(
+    private func makeLayout(script: Bool = false) -> MathLayout {
+        var layout = MathLayout(
             font: .regular,
             color: .black,
             measureText: { run in Double(run.text.count) * run.size * 0.6 },
             metrics: .default,
         )
+        layout.isScriptStyle = script
+        return layout
     }
 
-    private func width(of source: String, displayStyle: Bool, size: Double) throws -> Double {
+    private func width(of source: String, displayStyle: Bool, size: Double, script: Bool = false) throws -> Double {
         let formula = try MathParser().parse(source)
-        return try makeLayout().layout(formula.root, size: size, displayStyle: displayStyle).width
+        return try makeLayout(script: script).layout(formula.root, size: size, displayStyle: displayStyle).width
     }
 
     /// The tolerance is derived: a width is a sum of at most 4 atom widths and at most 3 spaces, each a product of two doubles
@@ -40,20 +42,39 @@ struct MathSpacingOracleTests {
         try check(displayStyle: displayStyle)
     }
 
-    private func check(displayStyle: Bool) throws {
+    @Test("every sequence of up to 4 atoms in a script has the width of its atoms plus the spaces that remain in the script styles")
+    func scriptStyle() throws {
+        try check(displayStyle: false, script: true)
+    }
+
+    @Test("the content of a superscript is laid out in the script style: no medium space around its plus sign")
+    func superscriptContentIsScriptStyle() throws {
+        let size = 10.0
+        let metrics = MathLayoutMetrics.default
+        let scriptSize = metrics.scriptSize(size: size)
+        let base = try width(of: "x", displayStyle: false, size: size)
+        let content = try width(of: "1+1", displayStyle: false, size: scriptSize, script: true)
+        let whole = try width(of: "x^{1+1}", displayStyle: false, size: size)
+        #expect(abs(whole - (base + metrics.spaceAfterScript(size: size) + content)) < tolerance)
+        // And the same content in the text style would be wider by two mediums, which is what a script must not have.
+        let large = try width(of: "1+1", displayStyle: false, size: scriptSize)
+        #expect(abs(large - content - 2 * 4 * scriptSize / 18) < tolerance)
+    }
+
+    private func check(displayStyle: Bool, script: Bool = false) throws {
         let size = 10.0
         // A large style for the conditional entries: display and text are both large; only the script styles are not.
         var atomWidths: [Class: Double] = [:]
         for atom in Class.allCases {
-            atomWidths[atom] = try width(of: atom.source, displayStyle: displayStyle, size: size)
+            atomWidths[atom] = try width(of: atom.source, displayStyle: displayStyle, size: size, script: script)
         }
         var failures = 0
         var first: String?
         for classes in MathSpacingReference.sequences(upTo: 4) {
             let source = classes.map(\.source).joined()
-            let expectedGlue = Double(MathSpacingReference.totalMu(classes, largeStyle: true)) * size / 18
+            let expectedGlue = Double(MathSpacingReference.totalMu(classes, largeStyle: !script)) * size / 18
             let expected = classes.reduce(0.0) { $0 + (atomWidths[$1] ?? 0) } + expectedGlue
-            let actual = try width(of: source, displayStyle: displayStyle, size: size)
+            let actual = try width(of: source, displayStyle: displayStyle, size: size, script: script)
             if abs(actual - expected) > tolerance {
                 failures += 1
                 if first == nil {
@@ -62,6 +83,40 @@ struct MathSpacingOracleTests {
             }
         }
         #expect(failures == 0, "\(failures) of \(MathSpacingReference.sequences(upTo: 4).count) sequences differ; the first: \(first ?? "none")")
+    }
+
+    @Test("a symbol that has no class is reported by name and not guessed")
+    func unclassifiedSymbolIsReported() {
+        let node = MathNode.sequence([.text("1"), .symbol(display: "zzz", linearized: "z", isBigOperator: false)])
+        #expect(throws: MathLayout.LayoutError.unclassifiedSymbol("zzz")) {
+            try makeLayout().layout(node, size: 10, displayStyle: false)
+        }
+    }
+
+    /// Every symbol command the parser reads, written out by hand from its table (the parser keeps it private).
+    private static let symbolCommands: [String] = [
+        "alpha", "beta", "gamma", "delta", "epsilon", "theta", "lambda", "mu", "pi", "sigma", "phi", "omega", "Gamma", "Delta",
+        "Theta", "Lambda", "Pi", "Sigma", "Phi", "Omega", "leq", "le", "geq", "ge", "neq", "times", "cdot", "pm", "infty",
+        "rightarrow", "to", "zeta", "eta", "iota", "kappa", "nu", "xi", "rho", "tau", "upsilon", "chi", "psi", "varepsilon",
+        "varphi", "vartheta", "Xi", "Psi", "Upsilon", "approx", "equiv", "sim", "propto", "ll", "gg", "subset", "supset",
+        "subseteq", "supseteq", "in", "notin", "ni", "mid", "parallel", "leftarrow", "gets", "leftrightarrow", "Rightarrow",
+        "Leftarrow", "Leftrightarrow", "mapsto", "div", "ast", "star", "circ", "bullet", "oplus", "ominus", "otimes", "cup", "cap",
+        "wedge", "vee", "emptyset", "forall", "exists", "nabla", "partial", "angle", "ldots", "cdots", "dots", "prime", "hbar",
+        "ell", "aleph", "sin", "cos", "tan", "cot", "sec", "csc", "log", "ln", "exp", "deg", "gcd", "sum", "prod", "int", "oint",
+        "coprod", "bigcup", "bigcap", "lim", "max", "min", "sup", "inf",
+    ]
+
+    @Test("every symbol command of the parser has a class: none is reported")
+    func everySymbolCommandHasAClass() throws {
+        var unclassified: [String] = []
+        for command in Self.symbolCommands {
+            do {
+                _ = try width(of: "1\\\(command) 1", displayStyle: false, size: 10)
+            } catch let error as MathLayout.LayoutError {
+                unclassified.append("\(command): \(error)")
+            }
+        }
+        #expect(unclassified.isEmpty, "\(unclassified.count) commands have no class: \(unclassified.joined(separator: "; "))")
     }
 
     @Test("the matrix has the shape of the book: 8 rows of 8, the stars where a binary operator or a relation cannot stand")
