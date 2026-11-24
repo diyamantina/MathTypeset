@@ -87,10 +87,19 @@ struct MathSpacingOracleTests {
 
     @Test("a symbol that has no class is reported by name and not guessed")
     func unclassifiedSymbolIsReported() {
-        let node = MathNode.sequence([.text("1"), .symbol(display: "zzz", linearized: "z", isBigOperator: false)])
-        #expect(throws: MathLayout.LayoutError.unclassifiedSymbol("zzz")) {
+        let node = MathNode.sequence([.text("1"), .symbol(display: "\u{2602}", linearized: "umbrella", isBigOperator: false)])
+        #expect(throws: MathLayout.LayoutError.unclassifiedSymbol("\u{2602}")) {
             try makeLayout().layout(node, size: 10, displayStyle: false)
         }
+    }
+
+    @Test("an operator name written by the author is an operator: thin space on both sides, as the TeXbook gives \\operatorname", arguments: ["argmax", "arg max", "Var", "x"])
+    func operatorNameIsAnOperator(name: String) throws {
+        let size = 10.0
+        let bare = try width(of: "\\operatorname{\(name)}", displayStyle: false, size: size)
+        let one = try width(of: "1", displayStyle: false, size: size)
+        let framed = try width(of: "1\\operatorname{\(name)}1", displayStyle: false, size: size)
+        #expect(abs(framed - (bare + 2 * one + 2 * 3 * size / 18)) < tolerance)
     }
 
     /// Every symbol command the parser reads, written out by hand from its table (the parser keeps it private).

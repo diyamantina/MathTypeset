@@ -50,13 +50,13 @@ enum MathAtomClass: Equatable {
     /// Symbols that are inner: the ellipses (`\ldots`, `\cdots` and `\dots` are `\mathinner` in plain TeX).
     private static let innerSymbols: Set<String> = ["\u{2026}", "\u{22EF}"]
 
-    /// The names of the functions that are operators without being big operators (`\sin`, `\log` and the others): the parser reads
-    /// them as symbols whose Unicode string is their name.
-    private static let functionNames: Set<String> = ["sin", "cos", "tan", "cot", "sec", "csc", "log", "ln", "exp", "deg", "gcd"]
-
     /// The class of a symbol node, or nil for a symbol that has no entry: such a symbol is reported by the layout, never guessed.
+    ///
+    /// A symbol whose text is plain ASCII is an operator name: the functions the parser reads as symbols (`\sin`, `\log` and the
+    /// others) and every `\operatorname{...}` (whose name is any text the author wrote, so it cannot be listed). TeX gives both the
+    /// class of an operator. Every other symbol of the parser's table is a non-ASCII character and is listed above.
     static func ofSymbol(display: String, isBigOperator: Bool) -> MathAtomClass? {
-        if isBigOperator || functionNames.contains(display) {
+        if isBigOperator || (!display.isEmpty && display.allSatisfy(\.isASCII)) {
             return .op
         }
         if binarySymbols.contains(display) {
