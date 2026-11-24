@@ -245,17 +245,34 @@ public struct MathLayout {
         // nil for a child that is not an atom (a typed space, an explicit space): it has no space of its own by class.
         let classes = try Self.cancelledClasses(of: children)
         var previous: MathAtomClass?
+        var previousDrawn: (text: String, isSymbol: Bool)?
+        var typedSpace: MathBox?
 
         for (child, atom) in zip(children, classes) {
+            let drawn = drawnText(of: child)
             if let atom {
+                var glue = 0
                 if let previous, let mu = MathSpacing.mu(between: previous, and: atom, largeStyle: !isScriptStyle) {
+                    glue = mu
                     cursor += Double(mu) * size / 18
                 }
+                // A typed space is ignored in math, as in TeX, except where two words drawn from symbols would run together
+                // (`\alpha \beta` drawn as "alpha" and "beta" in the ASCII fallback) and the classes give no space between them.
+                if let typedSpace, glue == 0, let previousDrawn, let drawn, previousDrawn.isSymbol || drawn.isSymbol,
+                   previousDrawn.text.last?.isASCIIWordCharacter == true, drawn.text.first?.isASCIIWordCharacter == true
+                {
+                    cursor += typedSpace.width
+                }
                 previous = atom
+                typedSpace = nil
             } else if case let .text(text) = child, text.allSatisfy(\.isWhitespace) {
-                // A typed space is ignored in math, as in TeX: the space between atoms comes from their classes.
+                // A typed space is ignored in math: the space between atoms comes from their classes.
+                typedSpace = try layout(child, size: size, displayStyle: displayStyle)
                 continue
+            } else {
+                typedSpace = nil
             }
+            previousDrawn = drawn
             let box = try layout(child, size: size, displayStyle: displayStyle)
             elements += box.elements.map { $0.offsetBy(x: cursor, y: 0) }
             cursor += box.width
@@ -264,6 +281,18 @@ public struct MathLayout {
         }
 
         return MathBox(width: cursor, height: height, depth: depth, elements: elements)
+    }
+
+    /// The text a child draws when it is a character or a symbol, and whether it is a symbol; nil for any other node.
+    private func drawnText(of node: MathNode) -> (text: String, isSymbol: Bool)? {
+        switch node {
+        case let .text(text):
+            (text, false)
+        case let .symbol(display, linearized, _):
+            (symbolText(display: display, linearized: linearized), true)
+        default:
+            nil
+        }
     }
 
     /// The class of each child, or nil for a child that is not an atom, after the cancellation of the binary operators.
@@ -306,7 +335,8 @@ public struct MathLayout {
             }
             return atom
         case .fraction:
-            return .inner
+            // `\frac` is a group in LaTeX (`{...\over...}`), hence one ordinary atom; only a bare `\over` would be inner.
+            return .ord
         case let .scripts(base, _, _):
             return try atomClass(of: base) ?? .ord
         case let .scaledDelimiter(symbol, _):
@@ -478,8 +508,8 @@ public struct MathLayout {
     ) throws -> MathBox {
         let baseBox = try layout(base, size: metrics.displayOperatorSize(size: size), displayStyle: false)
         let scriptSize = metrics.scriptSize(size: size)
-        let lowerBox = try lower.map { try layout($0, size: scriptSize, displayStyle: false) }
-        let upperBox = try upper.map { try layout($0, size: scriptSize, displayStyle: false) }
+        let lowerBox = try lower.map { try scripted().layout($0, size: scriptSize, displayStyle: false) }
+        let upperBox = try upper.map { try scripted().layout($0, size: scriptSize, displayStyle: false) }
         let upperGap = metrics.upperLimitGap(size: size)
         let lowerGap = metrics.lowerLimitGap(size: size)
         let width = max(baseBox.width, lowerBox?.width ?? 0, upperBox?.width ?? 0)
@@ -502,6 +532,13 @@ public struct MathLayout {
         }
 
         return MathBox(width: width, height: height, depth: depth, elements: elements)
+    }
+}
+
+private extension Character {
+    /// An ASCII letter or digit: what runs together with a neighbour of the same kind when the two are drawn side by side.
+    var isASCIIWordCharacter: Bool {
+        isASCII && (isLetter || isNumber)
     }
 }
 

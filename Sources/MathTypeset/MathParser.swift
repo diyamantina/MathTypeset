@@ -120,7 +120,7 @@ public struct MathParser {
             let character = source[index]
             if character == "{" {
                 index = source.index(after: index)
-                return try parseSequence(until: "}")
+                return try Self.bracedAtom(parseSequence(until: "}"))
             }
             if character == "\\" {
                 return try parseControlWord()
@@ -179,7 +179,12 @@ public struct MathParser {
             case "qquad":
                 return .space(em: 2)
             case "text":
-                return try .text(parseRawTextGroup(for: command))
+                let text = try parseRawTextGroup(for: command)
+                if !text.isEmpty, text.allSatisfy(\.isWhitespace) {
+                    // A text of only spaces is the space of the control space, not a typed space (which math ignores).
+                    return .space(em: 6.0 / 18.0)
+                }
+                return Self.bracedAtom(.text(text))
             case "right", "end", "newcommand":
                 throw ParseError.unsupportedControlWord(command)
             default:
@@ -213,7 +218,7 @@ public struct MathParser {
             try consumeControlWord("right")
             skipWhitespace()
             let closing = try parseDelimiter(for: "right")
-            return compactSequence([opening, body, closing])
+            return compactSequence([Self.asDelimiter(opening), body, Self.asDelimiter(closing)])
         }
 
         private mutating func parseScaledDelimiter(scale: Double) throws -> MathNode {
@@ -450,6 +455,34 @@ public struct MathParser {
                 return try parseSequence(until: "}")
             }
             return try parseAtom()
+        }
+
+        /// A delimiter of `\left` and `\right` that is drawn as an angle sign is a delimiter and not a relation: the unscaled
+        /// delimiter node draws the same text and is classed by its character (an opening or a closing atom).
+        private static func asDelimiter(_ node: MathNode) -> MathNode {
+            if case let .text(symbol) = node, symbol == "<" || symbol == ">" {
+                return .scaledDelimiter(symbol: symbol, scale: 1)
+            }
+            return node
+        }
+
+        /// The node of a braced group or of a `\text` group. TeX makes a group one ordinary atom whatever it holds, so `1{,}5` has no
+        /// space at the comma and `{-}` is not a binary operator; the compact form of a group of one atom would lose that, so a
+        /// single character or symbol that is not ordinary keeps its group as a one-element sequence (which is an ordinary atom).
+        private static func bracedAtom(_ node: MathNode) -> MathNode {
+            switch node {
+            case let .text(text):
+                if text.count == 1, let character = text.first, MathAtomClass.ofCharacter(character) != .ord {
+                    return .sequence([node])
+                }
+            case let .symbol(display, _, isBigOperator):
+                if MathAtomClass.ofSymbol(display: display, isBigOperator: isBigOperator) != .ord {
+                    return .sequence([node])
+                }
+            default:
+                break
+            }
+            return node
         }
 
         private func compactSequence(_ nodes: [MathNode]) -> MathNode {

@@ -30,6 +30,11 @@ enum MathSpacing {
             return [.rel, .close, .punct].contains(right) ? 0 : (largeStyle ? thick : 0)
         }
         if right == .rel {
+            // After punctuation the space before a relation is the thin one of the punctuation (tex.web, as the digit 1), not the
+            // thick one: KaTeX's data differs from TeX in this one pair.
+            if left == .punct {
+                return largeStyle ? thin : 0
+            }
             return left == .open ? 0 : (largeStyle ? thick : 0)
         }
         // The thin spaces. Next to an operator they stay in every style: an ordinary, an operator, a closing or an inner atom

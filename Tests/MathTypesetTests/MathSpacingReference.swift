@@ -2,8 +2,9 @@ import Foundation
 
 /// The answer key of the spacing between math atoms, written as DATA and as a slow rule, apart from the code under test.
 ///
-/// Sources, marked as in the oracle document: the matrix is the table of the TeXbook (chapter 18, page 170) typed here: it was typed
-/// from memory, no copy of the book was at hand, so it is UNVERIFIED until it is compared with the book. The two rules that turn a
+/// Sources, marked as in the oracle document: the matrix is the table of the TeXbook (chapter 18, page 170) typed here, and every
+/// cell is compared with the 64 digits of `math_spacing` in Knuth's `tex.web` (MathSpacingTeXWebData), DOCUMENTED by the source of
+/// the program; the book's printed page itself was not compared. The two rules that turn a
 /// binary operator into an ordinary atom (rules 5 and 6 of Appendix G) are DOCUMENTED by the vendored reference `buildHTML.ts` of
 /// KaTeX, which states them as two sets: a binary operator becomes ordinary after nothing, or after a binary operator, an
 /// operator, a relation, an opening or a punctuation atom; and before nothing, or before a relation, a closing or a punctuation
@@ -22,7 +23,7 @@ enum MathSpacingReference {
         /// One source atom of this class, as a string the parser reads as exactly one atom. The ordinary atom is a digit and not a
         /// letter, so that the control word of the operator (`\sum`) is not read together with the next atom (`\suma` is one word).
         var source: String {
-            ["1", #"\sum"#, "+", "=", "(", ")", ",", #"\frac{x}{y}"#][rawValue]
+            ["1", #"\sum"#, "+", "=", "(", ")", ",", #"\ldots"#][rawValue]
         }
     }
 
@@ -37,8 +38,8 @@ enum MathSpacingReference {
     ///
     /// Written as the book prints it: a digit is the space in mu, a letter c before it marks the entry that is in parentheses (only
     /// in the display and text styles), a star is a pair that cannot occur.
-    /// Punct followed by rel: KaTeX's data says thick (5 mu), my memory of the book says thin (3 mu). The data of KaTeX, read from
-    /// its file, wins here (see MathSpacingKaTeXData); the disagreement with the memory of the book is named in docs/oracle.md.
+    /// Punct followed by rel is a conditional thin space in `tex.web` (the digit 1); KaTeX's data says thick there, a deviation of
+    /// KaTeX from TeX that the test of the KaTeX data names (see MathSpacingKaTeXData).
     static let matrix: [[Entry?]] = rows.map { row in
         row.split(separator: " ").map { token -> Entry? in
             if token == "*" {
@@ -58,7 +59,7 @@ enum MathSpacingReference {
         /* rel   */ "c5 c5 * 0 c5 0 0 c5",
         /* open  */ "0 0 * 0 0 0 0 0",
         /* close */ "0 3 c4 c5 0 0 0 c3",
-        /* punct */ "c3 c3 * c5 c3 c3 c3 c3",
+        /* punct */ "c3 c3 * c3 c3 c3 c3 c3",
         /* inner */ "c3 3 c4 c5 c3 0 c3 c3",
     ]
 

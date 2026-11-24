@@ -8,19 +8,30 @@ enum MathAtomClass: Equatable {
     /// are binary operators, the equal sign, the two angle brackets and the colon are relations; the opening and closing brackets
     /// open and close; the comma and the semicolon are punctuation; the exclamation and the question mark close.
     static func ofCharacter(_ character: Character) -> MathAtomClass {
+        // A character typed as Unicode has the class of the symbol the command of the same character gives (`≤` and `\leq`).
+        let text = String(character)
+        if binarySymbols.contains(text) {
+            return .bin
+        }
+        if relationSymbols.contains(text) {
+            return .rel
+        }
+        if innerSymbols.contains(text) {
+            return .inner
+        }
         switch character {
         case "+", "-", "\u{2212}", "*":
-            .bin
+            return .bin
         case "=", "<", ">", ":":
-            .rel
-        case "(", "[":
-            .open
-        case ")", "]", "!", "?":
-            .close
+            return .rel
+        case "(", "[", "{":
+            return .open
+        case ")", "]", "}", "!", "?":
+            return .close
         case ",", ";":
-            .punct
+            return .punct
         default:
-            .ord
+            return .ord
         }
     }
 
