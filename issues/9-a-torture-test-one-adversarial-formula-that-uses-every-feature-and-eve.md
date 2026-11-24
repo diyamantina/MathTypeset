@@ -5,9 +5,9 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T10:10:05+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-24T13:23:11+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/9
-synced: 2026-11-24T12:18:48+01:00 0fabe0e398e2
+synced: 2026-11-24T13:23:11+01:00 e34718fec411
 neutralized: 1
 ---
 
@@ -26,3 +26,9 @@ The expected output is written and reviewed by hand once, then frozen; a change 
 ## Acceptance
 
 The input and the expected output are committed, the test compares byte for byte, and a planted fault in any one rule turns it red.
+
+## Comments
+
+### Mihaela, 2026-11-24T13:23:11+01:00
+
+Correction after reading the code on 2026-11-24. Comparing byte for byte needs a canonical serialization of the parse tree and the layout boxes, which does not exist (the types are only Equatable). The item must add it first. No nesting limit is defined or documented: the parser, linearizer and layout recurse without a bound, so the torture input needs a stated depth and a decision on what happens beyond it.

@@ -5,9 +5,9 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T09:55:11+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-24T13:20:27+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/4
-synced: 2026-11-24T12:18:48+01:00 161b11598314
+synced: 2026-11-24T13:20:27+01:00 314da6046391
 neutralized: 1
 ---
 
@@ -26,3 +26,9 @@ The reference is the written grammar. Generated cases: every production, every c
 ## Acceptance
 
 The grammar document exists, a test walks every production, a table of common commands lists each as supported or as a named limit, and an unknown command throws an error that names it and its position.
+
+## Comments
+
+### Mihaela, 2026-11-24T13:20:27+01:00
+
+Correction after reading the code on 2026-11-24. No parse error carries a position today, so the acceptance must add it (a position in the source text). There is no list of unsupported control words to review: the list has to be written. Silent behaviour to decide, each as supported, error or named limit: an end of an environment is not compared with its begin; an ampersand, tilde, percent or hash outside a matrix becomes literal text; a scaled delimiter given as a dot yields an empty node; a trailing lone backslash reports an empty command name; control words accept any Unicode letter.

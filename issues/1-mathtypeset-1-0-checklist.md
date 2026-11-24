@@ -5,9 +5,9 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T09:55:09+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-24T13:37:50+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/1
-synced: 2026-11-24T12:18:48+01:00 44dfab9d143a
+synced: 2026-11-24T13:37:50+01:00 91628d2f8edc
 neutralized: 1
 ---
 
@@ -39,6 +39,19 @@ MathTypeset goes to 1.0 together with TileDown and MarkdownPDF. None of the thre
 - [ ] #18 Spacing and any breaking claim are checked by a slow exhaustive reference on small inputs
 - [ ] #9 A torture test: one adversarial formula that uses every feature and every edge at once
 - [ ] #10 Determinism: the same input and version give byte-identical output on every machine
+
+### The layout engine (the 1.0 scope decision of 2026-11-24)
+
+MathTypeset 1.0 includes a TeX-grade layout engine: formulas that look wrong are the user-facing flaw of a math library, so the three 1.0 releases wait for it (the owner's rule: the better route for the person using the product wins, even when it is harder or slower to build). Issues #5 and #18 are the engine's items again; their correction comments of 2026-11-24 are the record of what the code did not have. The order of the work, by visible value, each slice with its oracle first and each re-baselining the rendered formulas on purpose (a reviewed diff of the formula pictures):
+
+0. The font-table reader gets its tests and the oracle is written (#2, #7, #8): the constants, the byte reader, hostile bytes. Estimate 1 week.
+1. Atom classes and the inter-atom spacing table (#5, #18). Estimate 2 weeks.
+2. The style cascade with cramped forms (#5). Estimate 1.5 weeks.
+3. Growing delimiters for left and right, and the rest of the delimiter rules (#5). Estimate 1 week.
+4. The remaining Appendix G rules: fractions, radicals, scripts and limits, accents (#5). Estimate 2 weeks.
+5. Line breaking as its own named slice: it is in 1.0 or it is a named limit, decided after slice 4. Estimate 2 to 3 weeks if in.
+
+The estimates are UNVERIFIED (nothing has been built); they add up to 6 to 10 weeks of focused work. The extraction of the extended Markdown (byte-for-byte corpus, current math output unchanged) comes before slice 1, and the corpus is re-baselined once after it.
 
 ### Speed
 

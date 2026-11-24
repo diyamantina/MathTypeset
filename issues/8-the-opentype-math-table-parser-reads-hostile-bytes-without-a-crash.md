@@ -5,9 +5,9 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T10:09:34+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-24T13:22:31+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/8
-synced: 2026-11-24T12:18:48+01:00 22b08dfba1e9
+synced: 2026-11-24T13:22:31+01:00 530581db4cb0
 neutralized: 1
 ---
 
@@ -26,3 +26,9 @@ The reference is the expected error per case, written before the run. Every case
 ## Acceptance
 
 The corpus is committed, every case passes with its exact error, the bound is stated and tested, and a planted missing bounds check is caught.
+
+## Comments
+
+### Mihaela, 2026-11-24T13:22:31+01:00
+
+Correction after reading the code on 2026-11-24. Reads are bounds checked and no offset is followed recursively, so a hang from a cycle is not expected; the corpus should still prove it. The real risks to test: shared offsets (many construction offsets may point at one construction) can make the output grow roughly with the square of the input, and no overlap or total-size limit exists; the error type is internal and its reasons are free text, so an exact expected error needs a typed, public error first (see the API item). The MATH parser and the byte reader have no test at all today.

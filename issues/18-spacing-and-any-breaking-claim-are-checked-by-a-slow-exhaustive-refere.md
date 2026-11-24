@@ -5,9 +5,9 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T12:18:28+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-24T13:37:09+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/18
-synced: 2026-11-24T12:18:48+01:00 124d09381aae
+synced: 2026-11-24T13:37:09+01:00 9ea0157b9cb4
 neutralized: 1
 ---
 
@@ -26,3 +26,13 @@ The reference is the exhaustive enumeration itself; the equivalence is exact; th
 ## Acceptance
 
 The reference and its bound are committed, the shipped layout equals it on every enumerated case, each planted fault turns the check red, and the documentation states whether the package breaks lines.
+
+## Comments
+
+### Mihaela, 2026-11-24T13:25:56+01:00
+
+Correction after reading the code on 2026-11-24. MathTypeset does not break lines (layout takes no width) and has no inter-atom spacing table, so this item has two parts: (1) state in the documentation that the package does not break lines, and remove any claim that implies it; (2) the exhaustive reference for spacing exists only after the layout rules item decides whether the spacing rules are implemented. Until then this item is blocked by that decision.
+
+### Mihaela, 2026-11-24T13:37:09+01:00
+
+Decision of 2026-11-24 on the scope: the exhaustive reference for the spacing returns to its original meaning, because the spacing table is implemented (see issue 5). Line breaking is a separate named slice of the engine: it is in 1.0 or it is a named limit, decided after the layout rules are done; until then the documentation says that the package does not break lines.
