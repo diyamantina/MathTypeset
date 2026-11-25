@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-25
+
+### Changed
+
+- Layout follows the TeX atom classes and the space between atoms (relations, binary operators, punctuation, operator
+  names, groups), written against an oracle first. An operator name written by the author is an operator.
+
+### Fixed
+
+- The pre-push hook unsets the variables git exports, so a cold worktree builds its packages.
+
 ## [0.7.0] - 2026-06-28
 
 ### Added
