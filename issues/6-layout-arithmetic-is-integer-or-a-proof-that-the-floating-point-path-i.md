@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T10:04:02+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-26T03:39:06+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/6
-synced: 2026-11-24T12:18:48+01:00 fcceef4657ee
-neutralized: 1
+synced: 2026-11-26T03:39:06+01:00 6340c4a151b6
+neutralized: 2
 ---
 
 ## What
@@ -26,3 +26,9 @@ The slow reference is exact rational arithmetic on small inputs. The optimized p
 ## Acceptance
 
 The decision is written with its evidence, a differential test against exact arithmetic passes for the seeded set on macOS and Linux, and a planted rounding fault is caught.
+
+## Comments
+
+### Mihaela, 2026-11-26T03:39:06+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).

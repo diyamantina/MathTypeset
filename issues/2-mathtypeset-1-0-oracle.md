@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T09:55:10+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-26T03:39:10+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/2
-synced: 2026-11-24T12:18:48+01:00 a278d035bdec
-neutralized: 1
+synced: 2026-11-26T03:39:10+01:00 9c7ef028eccd
+neutralized: 2
 ---
 
 ## What

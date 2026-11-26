@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T09:55:13+01:00
-updated: 2026-11-24T13:36:28+01:00
+updated: 2026-11-26T03:39:05+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/5
-synced: 2026-11-24T13:36:28+01:00 54d18196777f
-neutralized: 1
+synced: 2026-11-26T03:39:05+01:00 ff05473c5138
+neutralized: 2
 ---
 
 ## What
@@ -36,3 +36,7 @@ Correction after reading the code on 2026-11-24, and a decision this item needs 
 ### Mihaela, 2026-11-24T13:36:28+01:00
 
 Decision of 2026-11-24 on the scope: MathTypeset 1.0 includes a TeX-grade layout engine, so this item returns to its original meaning. The rules of the TeXbook (atom classes, the inter-atom spacing table, the style cascade with cramped forms, growing delimiters, fractions, radicals, scripts and limits, accents) are implemented rule by rule, each as a row of the table with its source and a test whose expected numbers are computed by hand from the book's own worked cases. The correction comment above stays as the record of what the code did not have on that day. The slices and their order are in the tracking issue.
+
+### Mihaela, 2026-11-26T03:39:05+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).

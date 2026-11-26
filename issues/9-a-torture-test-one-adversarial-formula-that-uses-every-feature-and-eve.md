@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T10:10:05+01:00
-updated: 2026-11-24T13:23:11+01:00
+updated: 2026-11-26T03:39:09+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/9
-synced: 2026-11-24T13:23:11+01:00 e34718fec411
-neutralized: 1
+synced: 2026-11-26T03:39:09+01:00 38573d98a4e0
+neutralized: 2
 ---
 
 ## What
@@ -32,3 +32,7 @@ The input and the expected output are committed, the test compares byte for byte
 ### Mihaela, 2026-11-24T13:23:11+01:00
 
 Correction after reading the code on 2026-11-24. Comparing byte for byte needs a canonical serialization of the parse tree and the layout boxes, which does not exist (the types are only Equatable). The item must add it first. No nesting limit is defined or documented: the parser, linearizer and layout recurse without a bound, so the torture input needs a stated depth and a decision on what happens beyond it.
+
+### Mihaela, 2026-11-26T03:39:09+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).

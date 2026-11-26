@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T12:18:28+01:00
-updated: 2026-11-24T13:37:09+01:00
+updated: 2026-11-26T03:39:10+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/18
-synced: 2026-11-24T13:37:09+01:00 9ea0157b9cb4
-neutralized: 1
+synced: 2026-11-26T03:39:10+01:00 488e62ca81d9
+neutralized: 2
 ---
 
 ## What
@@ -36,3 +36,7 @@ Correction after reading the code on 2026-11-24. MathTypeset does not break line
 ### Mihaela, 2026-11-24T13:37:09+01:00
 
 Decision of 2026-11-24 on the scope: the exhaustive reference for the spacing returns to its original meaning, because the spacing table is implemented (see issue 5). Line breaking is a separate named slice of the engine: it is in 1.0 or it is a named limit, decided after the layout rules are done; until then the documentation says that the package does not break lines.
+
+### Mihaela, 2026-11-26T03:39:10+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).

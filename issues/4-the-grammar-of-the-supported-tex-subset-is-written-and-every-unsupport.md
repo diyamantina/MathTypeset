@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T09:55:11+01:00
-updated: 2026-11-24T13:20:27+01:00
+updated: 2026-11-26T03:39:05+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/4
-synced: 2026-11-24T13:20:27+01:00 314da6046391
-neutralized: 1
+synced: 2026-11-26T03:39:05+01:00 a00633f0a679
+neutralized: 2
 ---
 
 ## What
@@ -32,3 +32,7 @@ The grammar document exists, a test walks every production, a table of common co
 ### Mihaela, 2026-11-24T13:20:27+01:00
 
 Correction after reading the code on 2026-11-24. No parse error carries a position today, so the acceptance must add it (a position in the source text). There is no list of unsupported control words to review: the list has to be written. Silent behaviour to decide, each as supported, error or named limit: an end of an environment is not compared with its begin; an ampersand, tilde, percent or hash outside a matrix becomes literal text; a scaled delimiter given as a dot yields an empty node; a trailing lone backslash reports an empty command name; control words accept any Unicode letter.
+
+### Mihaela, 2026-11-26T03:39:05+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).

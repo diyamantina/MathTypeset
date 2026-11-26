@@ -7,8 +7,8 @@ assignees: []
 created: 2026-11-24T10:25:09+01:00
 updated: 2026-11-24T13:24:34+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/12
-synced: 2026-11-24T13:24:34+01:00 9404581df389
-neutralized: 1
+synced: 2026-11-24T13:24:34+01:00 b6042f0d85f7
+neutralized: 2
 ---
 
 ## What

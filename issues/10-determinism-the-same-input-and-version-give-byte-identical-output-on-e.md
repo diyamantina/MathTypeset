@@ -5,10 +5,10 @@ state: open
 labels: ["before-1.0", "enhancement"]
 assignees: []
 created: 2026-11-24T10:10:36+01:00
-updated: 2026-11-24T12:18:48+01:00
+updated: 2026-11-26T03:39:09+01:00
 host: https://codeberg.org/MarkdownPDFHQ/MathTypeset/issues/10
-synced: 2026-11-24T12:18:48+01:00 a7b99c60a124
-neutralized: 1
+synced: 2026-11-26T03:39:09+01:00 99a878ee4c86
+neutralized: 2
 ---
 
 ## What
@@ -26,3 +26,9 @@ The reference is the committed expected output of the torture test, run on both 
 ## Acceptance
 
 A test runs the torture input twice in one process and compares, a script runs it on both platforms and compares the hashes, and a planted dictionary order dependence is caught.
+
+## Comments
+
+### Mihaela, 2026-11-26T03:39:09+01:00
+
+Blocked by #2, the MathTypeset 1.0 oracle: the answer key comes before this item (see the checklist in #1).
